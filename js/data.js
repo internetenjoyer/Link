@@ -9,7 +9,7 @@ export class DataManager {
         this.postTypes = {}; // Kategori ID'lerine göre gönderi tipleri
         
         // API URL'leri
-        this.apiBaseUrl = 'http://localhost:3000/api';
+        this.apiBaseUrl = window.location.origin + '/api';
         this.readApiUrl = `${this.apiBaseUrl}/read`;
         this.writeApiUrl = `${this.apiBaseUrl}/write`;
         
