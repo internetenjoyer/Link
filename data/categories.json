@@ -1,0 +1,27 @@
+[
+  {
+    "id": "instagram",
+    "name": "Instagram",
+    "icon": "fab fa-instagram"
+  },
+  {
+    "id": "linkedin",
+    "name": "LinkedIn",
+    "icon": "fab fa-linkedin"
+  },
+  {
+    "id": "youtube",
+    "name": "YouTube",
+    "icon": "fab fa-youtube"
+  },
+  {
+    "id": "facebook",
+    "name": "Facebook",
+    "icon": "fab fa-facebook"
+  },
+  {
+    "id": "website",
+    "name": "Web Sitesi",
+    "icon": "fas fa-globe"
+  }
+] 

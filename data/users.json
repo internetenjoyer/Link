@@ -1,0 +1,19 @@
+[
+  {
+    "id": "admin",
+    "username": "admin",
+    "password": "admin",
+    "role": "admin",
+    "allowedBrands": []
+  },
+  {
+    "username": "korlas",
+    "role": "user",
+    "allowedBrands": [
+      "brand5",
+      "brand6"
+    ],
+    "password": "korlas",
+    "id": "m85xioj2a5syz"
+  }
+]
