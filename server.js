@@ -44,6 +44,15 @@ app.post('/api/write/:file', (req, res) => {
         const dataDir = path.join(__dirname, 'data');
         if (!fs.existsSync(dataDir)) {
             fs.mkdirSync(dataDir, { recursive: true });
+            console.log('data klasörü oluşturuldu');
+        }
+        
+        // Dosya üzerinde yazma izni kontrol et
+        try {
+            fs.accessSync(dataDir, fs.constants.W_OK);
+        } catch (error) {
+            console.error(`Yazma izni hatası: ${error.message}`);
+            return res.status(500).json({ error: 'Dosya klasöründe yazma izni yok.' });
         }
         
         // JSON verilerini dosyaya yazma
@@ -52,7 +61,7 @@ app.post('/api/write/:file', (req, res) => {
         res.json({ success: true, message: `${file}.json dosyası başarıyla güncellendi` });
     } catch (error) {
         console.error(`Dosya yazma hatası: ${error.message}`);
-        res.status(500).json({ error: 'Dosya yazma hatası' });
+        res.status(500).json({ error: `Dosya yazma hatası: ${error.message}` });
     }
 });
 
