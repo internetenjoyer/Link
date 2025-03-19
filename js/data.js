@@ -26,7 +26,7 @@ export class DataManager {
         try {
             console.log('Veri yöneticisi başlatılıyor...');
             
-            // Kullanıcıları yükleme
+            // Kullanıcıları yükleme    
             await this.loadUsers();
             
             // Markaları yükleme
@@ -162,27 +162,66 @@ export class DataManager {
     // API'ye veri yazma
     async writeToApi(file, data) {
         try {
+            console.log(`API'ye yazma isteği gönderiliyor: ${this.writeApiUrl}/${file}`);
+            
+            // İstek zaman aşımı için 15 saniye tanımlayalım
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            
+            // API'ye POST isteği gönderme
             const response = await fetch(`${this.writeApiUrl}/${file}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
+                signal: controller.signal
             });
+            
+            // Zaman aşımı zamanlayıcısını temizle
+            clearTimeout(timeoutId);
             
             if (response.ok) {
                 const result = await response.json();
-                console.log(result.message);
+                console.log(`API yanıtı: ${result.message}`);
                 return true;
             } else {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'API yazma hatası');
+                let errorMessage = 'API yazma hatası';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || errorMessage;
+                    console.error(`API hata yanıtı: ${JSON.stringify(errorData)}`);
+                } catch (e) {
+                    console.error(`API yanıtını işleme hatası: ${e.message}`);
+                }
+                
+                throw new Error(errorMessage);
             }
         } catch (error) {
             console.error(`API'ye ${file} yazma hatası:`, error);
-            if (this.toastManager) {
-                this.toastManager.error(`${file}.json dosyası güncellenirken hata oluştu. Sunucunun çalıştığından emin olun.`);
+            
+            // Ağ hatası olup olmadığını kontrol et
+            let errorMessage = error.message;
+            if (error.name === 'AbortError') {
+                errorMessage = 'API isteği zaman aşımına uğradı. Sunucu yanıt vermiyor.';
+            } else if (!navigator.onLine) {
+                errorMessage = 'İnternet bağlantınız yok. Lütfen bağlantınızı kontrol edin.';
+            } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+                errorMessage = 'Sunucuya bağlanılamıyor. Lütfen sunucunun çalıştığından emin olun.';
             }
+            
+            if (this.toastManager) {
+                this.toastManager.error(`${file}.json dosyası güncellenirken hata oluştu: ${errorMessage}`);
+            }
+            
+            // Hata olsa bile localStorage'a kaydet
+            try {
+                localStorage.setItem(file, JSON.stringify(data));
+                console.log(`Veriler localStorage'a kaydedildi. Sunucu erişilebilir olduğunda tekrar denenecek.`);
+            } catch (e) {
+                console.error(`localStorage'a kaydetme hatası: ${e.message}`);
+            }
+            
             return false;
         }
     }
