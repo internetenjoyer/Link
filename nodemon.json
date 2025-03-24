@@ -1,0 +1,13 @@
+{
+  "verbose": true,
+  "ignore": [
+    "node_modules/*",
+    ".git/*",
+    "data/*"
+  ],
+  "watch": [
+    "server.js",
+    "js/*.js"
+  ],
+  "ext": "js,json"
+} 

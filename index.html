@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linker - Bağlantı Takip Sistemi</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Sayfa yüklenirken içeriği gizle */
+        body {
+            visibility: hidden;
+        }
+        body.loaded {
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="login-container" class="auth-container">
+            <h2>Giriş Yap</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Kullanıcı Adı:</label>
+                    <input type="text" id="login-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Şifre:</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> Giriş Yap</button>
+            </form>
+        </div>
+
+        <div id="main-container" class="hidden">
+            <header>
+                <h1>Linker</h1>
+                <div class="user-info">
+                    <span id="current-user"></span>
+                    <span id="user-role"></span>
+                    <button id="logout-btn" class="btn btn-small"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</button>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="sidebar">
+                    <div class="filter-section">
+                        <h3>Filtreler</h3>
+                        <div class="filter-group">
+                            <label for="date-filter">Tarih Aralığı:</label>
+                            <div class="date-picker-container">
+                                <div class="date-picker-input" id="date-filter-input">
+                                    <span class="selected-date-range">Tüm Zamanlar</span>
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                                <div class="date-picker-dropdown" id="date-picker-dropdown">
+                                    <div class="date-presets">
+                                        <button type="button" class="date-preset-btn" data-days="7">Son 7 Gün</button>
+                                        <button type="button" class="date-preset-btn" data-days="14">Son 14 Gün</button>
+                                        <button type="button" class="date-preset-btn" data-days="30">Son 30 Gün</button>
+                                        <button type="button" class="date-preset-btn" data-days="90">Son 3 Ay</button>
+                                        <button type="button" class="date-preset-btn active" data-days="0">Tüm Zamanlar</button>
+                                    </div>
+                                    
+                                    <!-- Gizli tarih alanları -->
+                                    <input type="hidden" id="date-start">
+                                    <input type="hidden" id="date-end">
+                                    
+                                    <!-- Takvim bileşeni -->
+                                    <div class="calendar" id="date-calendar">
+                                        <div class="calendar-header">
+                                            <div class="calendar-nav">
+                                                <button type="button" class="prev-month"><i class="fas fa-chevron-left"></i></button>
+                                                <div class="calendar-title">Ocak 2023</div>
+                                                <button type="button" class="next-month"><i class="fas fa-chevron-right"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="calendar-grid">
+                                            <!-- Gün başlıkları -->
+                                            <div class="calendar-day-header">Pt</div>
+                                            <div class="calendar-day-header">Sa</div>
+                                            <div class="calendar-day-header">Ça</div>
+                                            <div class="calendar-day-header">Pe</div>
+                                            <div class="calendar-day-header">Cu</div>
+                                            <div class="calendar-day-header">Ct</div>
+                                            <div class="calendar-day-header">Pa</div>
+                                            
+                                            <!-- Günler buraya dinamik olarak eklenecek -->
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="date-picker-actions">
+                                        <div class="date-picker-left-actions">
+                                            <button type="button" class="clear-date-btn"> Seçimi Temizle</button>
+                                        </div>
+                                        <div class="date-picker-right-actions">
+                                            <button type="button" class="cancel-btn">İptal</button>
+                                            <button type="button" class="apply-btn">Uygula</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label for="brand-filter">Marka:</label>
+                            <select id="brand-filter">
+                                <option value="">Tümü</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="category-filter">Kategori:</label>
+                            <select id="category-filter">
+                                <option value="">Tümü</option>
+                            </select>
+                        </div>
+                        <div class="filter-group" id="post-type-filter-container" style="display: none;">
+                            <label for="post-type-filter">Gönderi Tipi:</label>
+                            <select id="post-type-filter">
+                                <option value="">Tümü</option>
+                            </select>
+                        </div>
+                        <button id="clear-filters" class="btn btn-secondary"><i class="fas fa-times"></i> Temizle</button>
+                    </div>
+
+                    <div id="admin-panel" class="admin-section hidden">
+                        <h3>Admin Paneli</h3>
+                        <button id="manage-users-btn" class="btn"><i class="fas fa-users"></i> Kullanıcıları Yönet</button>
+                        <button id="manage-brands-btn" class="btn"><i class="fas fa-building"></i> Markaları Yönet</button>
+                        <button id="manage-categories-btn" class="btn"><i class="fas fa-tags"></i> Kategorileri Yönet</button>
+                    </div>
+                    
+                    <div id="data-management-panel" class="admin-section hidden">
+                        <h3>Veri Yönetimi</h3>
+                        <button id="export-links-btn" class="btn btn-secondary"><i class="fas fa-file-export"></i> Bağlantıları Dışa Aktar</button>
+                    </div>
+                </div>
+
+                <div class="main-content">
+                    <div class="links-wrapper">
+                        <div class="action-bar">
+                            <div class="action-left">
+                                <button id="add-link-btn" class="btn"><i class="fas fa-plus"></i> Yeni Bağlantı Ekle</button>
+                                
+                                <!-- Toplu işlem alanını buraya taşıyorum -->
+                                <div class="bulk-actions" id="bulk-actions">
+                                    <span class="bulk-count" id="selected-count">0 bağlantı seçildi</span>
+                                    <button id="delete-selected-btn" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                            
+                            <div class="action-right">
+                                <div class="link-count-container">
+                                    <span id="link-count">0 bağlantı</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="links-container">
+                            <div class="select-all-header" id="select-all-header">
+                                <div class="select-all-container">
+                                    <input type="checkbox" id="select-all-links">
+                                    <label for="select-all-links">Tümünü Seç</label>
+                                </div>
+                                
+                                <div class="search-container">
+                                    <div class="search-input-wrapper">
+                                        <input type="text" id="link-search" placeholder="Bağlantı ara...">
+                                        <i class="fas fa-search search-icon"></i>
+                                        <button type="button" id="clear-search" class="clear-search-btn" style="display: none;"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <ul id="links-list" class="sortable-list">
+                                <!-- Bağlantılar buraya eklenecek -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div id="link-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2 id="link-modal-title">Bağlantı Ekle</h2>
+                <form id="link-form">
+                    <input type="hidden" id="link-id">
+                    <div class="form-group">
+                        <label for="link-url">URL:</label>
+                        <input type="url" id="link-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="link-title">Başlık:</label>
+                        <input type="text" id="link-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="link-description">Açıklama:</label>
+                        <textarea id="link-description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="link-brand">Marka:</label>
+                        <select id="link-brand" required>
+                            <!-- Markalar buraya eklenecek -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="link-category">Kategori:</label>
+                        <select id="link-category" required>
+                            <!-- Kategoriler buraya eklenecek -->
+                        </select>
+                    </div>
+                    <div class="form-group" id="post-type-container" style="display: none;">
+                        <label>Gönderi Tipi:</label>
+                        <div class="post-type-options" id="post-type-options">
+                            <!-- Gönderi tipleri buraya eklenecek -->
+                        </div>
+                        <input type="hidden" id="link-post-type" required>
+                    </div>
+                    <button type="submit" class="btn">Kaydet</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="user-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Kullanıcıları Yönet</h2>
+                <div class="user-list-container">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>Kullanıcı Adı</th>
+                                <th>Rol</th>
+                                <th>İzinli Markalar</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Kullanıcılar buraya eklenecek -->
+                        </tbody>
+                    </table>
+                </div>
+                <button id="add-user-btn" class="btn">Yeni Kullanıcı Ekle</button>
+            </div>
+        </div>
+
+        <div id="edit-user-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2 id="edit-user-modal-title">Kullanıcı Ekle</h2>
+                <form id="edit-user-form">
+                    <input type="hidden" id="edit-user-id">
+                    <div class="form-group">
+                        <label for="edit-user-username">Kullanıcı Adı:</label>
+                        <input type="text" id="edit-user-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-password">Şifre:</label>
+                        <input type="password" id="edit-user-password">
+                        <small>Değiştirmek istemiyorsanız boş bırakın</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-user-role">Rol:</label>
+                        <select id="edit-user-role" required>
+                            <option value="user">Kullanıcı</option>
+                            <option value="editor">Editör</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>İzinli Markalar:</label>
+                        <div id="edit-user-brands" class="checkbox-group">
+                            <!-- Markalar buraya eklenecek -->
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Kaydet</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="brand-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Markaları Yönet</h2>
+                
+                <!-- Bildirim alanı -->
+                <div id="brand-notification" class="modal-notification" style="display: none;">
+                    <div class="modal-notification-content">
+                        <div class="modal-notification-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="modal-notification-message"></div>
+                        <button class="modal-notification-close" aria-label="Kapat" title="Bildirimi kapat">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="brand-list-container">
+                    <table id="brands-table">
+                        <thead>
+                            <tr>
+                                <th>Logo</th>
+                                <th>Marka Adı</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Markalar buraya eklenecek -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-group">
+                    <h3>Yeni Marka Ekle</h3>
+                    <div class="form-group">
+                        <label for="new-brand-name">Marka Adı:</label>
+                        <input type="text" id="new-brand-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-brand-logo">Marka Logosu:</label>
+                        <input type="file" id="new-brand-logo" accept="image/*">
+                        <small>Önerilen boyut: 100x100 piksel</small>
+                    </div>
+                    <button id="add-brand-btn" class="btn">Ekle</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="category-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Kategorileri Yönet</h2>
+                <div class="category-list-container">
+                    <table id="categories-table">
+                        <thead>
+                            <tr>
+                                <th>İkon</th>
+                                <th>Kategori Adı</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Kategoriler buraya eklenecek -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-group">
+                    <label for="new-category-name">Yeni Kategori:</label>
+                    <input type="text" id="new-category-name">
+                    <button id="add-category-btn" class="btn">Ekle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- CryptoJS kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <script src="js/app.js" type="module"></script>
+</body>
+</html> 

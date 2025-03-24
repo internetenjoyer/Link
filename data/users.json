@@ -1,0 +1,19 @@
+[
+  {
+    "id": "admin",
+    "username": "admin",
+    "passwordHash": "920170d35cf9ec27dd0aaa8f5641bbf47f0a80c1ab9ba52207f57b6c161e30db",
+    "role": "admin",
+    "allowedBrands": []
+  },
+  {
+    "username": "korlas",
+    "role": "user",
+    "allowedBrands": [
+      "brand5",
+      "brand6"
+    ],
+    "passwordHash": "d1be5475e0214c5e4c0dca394fa56e8b1876319f5d37608d0ffebf2618b8d84b",
+    "id": "m85xioj2a5syz"
+  }
+]

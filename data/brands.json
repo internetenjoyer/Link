@@ -1,0 +1,44 @@
+[
+  {
+    "id": "brand1",
+    "name": "Scania",
+    "logo": null,
+    "displayName": "Scania"
+  },
+  {
+    "id": "brand2",
+    "name": "Meiller",
+    "logo": null,
+    "displayName": "Meiller"
+  },
+  {
+    "id": "brand3",
+    "name": "Wielton",
+    "logo": null,
+    "displayName": "Wielton"
+  },
+  {
+    "id": "brand4",
+    "name": "Vibe Medya",
+    "logo": null,
+    "displayName": "Vibe Medya"
+  },
+  {
+    "id": "brand5",
+    "name": "Korlas",
+    "logo": null,
+    "displayName": "Korlas"
+  },
+  {
+    "id": "brand6",
+    "name": "Kosy",
+    "logo": null,
+    "displayName": "Kosy"
+  },
+  {
+    "id": "brand7",
+    "name": "Lovesail",
+    "logo": null,
+    "displayName": "Lovesail"
+  }
+]
